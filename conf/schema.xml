@@ -1,5 +1,632 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
+  MLibrary solr schema 7.0.0
+
+Versioning: x.y.z
+  x: match this to the major version of Drupal that we're using.
+  y: increment this and set z to 0 when we change the types.
+  z: increment this when we change the fields.
+
+  Do update the name="" attribute for the schema tag with this version number.
+  Do not change the version="" attribute for the schema tag with this version number.
+  
+Types:
+  Boolean:
+    boolean:        true/false.
+
+  Numeric:
+    tlong:          integer values.
+    tfloat:         floating point values.
+
+  Date:
+    tdate:          dates.
+
+  String:
+    string:         basic strings.
+    string_sort:    specially processed strings for sorting
+                    (omits the initial article where possible).
+    string_url:     specially processed strings for storing urls.
+    string_initial: just the first character of the string.
+    string_stdnum:  specially processed strings for storing isbns and issns.
+                    Stolen from Mirlyn.
+  Text:
+    text:           fully processed text field.
+    text_unstemmed: partially processed text field (everything but the stemmer).
+
+  Spatial:
+    None:  But should we need them read here: http://wiki.apache.org/solr/SpatialSearch
+
+Fields:
+
+  access_856_3:
+    type:        string
+    multivalued: yes
+    used by:     ejournals
+    used for:    MARC data field 856 subfield 3.  The coverage note on an ejournal.
+
+  access_type:
+    type:        string
+    multivalued: yes
+    used by:     ejournals, hathitrust, searchtools
+    used for:    An encoding of the access type (W: free, K: authenticated, ...).
+
+  access_url:
+    type:        string_url
+    multivalued: yes
+    used by:     ejournals,searchtools
+    used for:    storing the url of a resource
+
+  all_titles_unstemmed:
+    type:        text_unstemmed
+    multivalued: yes
+    used by:     everything
+    used for:    searching unstemmed versions of titles for higher relevance.
+
+  alt:
+    type:        text
+    multivalued: yes
+    used by:     ejournals, hathitrust, drupal
+    used for:    alternative titles.
+
+  ancestor_name:
+    type:        string
+    multivalued: yes
+    used by:     ejournals, drupal
+    used for:    ejournals: top-level high level browse categories. drupal: Something vocabulary/govdocs related.
+
+  ancestor_tid:
+    type:        tlong
+    multivalued: yes
+    used by:     ejournals
+    used for:    top-level high level browse categories.
+
+  author_initial:
+    type:        string_initial
+    multivalued: no
+    used by:     hathitrust, libguides
+    used for:    alphabetical browse by author
+
+  author_s:
+    type:        string
+    multivalued: no
+    used by:     libguides
+    used for:    exact matches on the author's name.
+
+  author:
+    type:        text
+    multivalued: no
+    used by:     hathitrust, libguides
+    used for:    text matches on the author's name.
+
+  author_unstemmed:
+    type:        text_unstemmed
+    multivalued: no
+    used by:     hathitrust, libguides
+    used for:    unstemmed text matches on the author's name.
+
+  body:
+    type:        text
+    multivalued: no
+    used by:     drupal, searchtools
+    used for:    the main content of the document.
+
+  boost:
+    type:        tfloat
+    multivalued: no
+    used by:     drupal (as indexed by nutch)
+    used for:    nothing as far as I know, it's one of the default fields, but we could hypothetically boost document relevance with this field.
+
+  cache:
+    type:        string
+    multivalued: no
+    used by:     drupal (as indexed by nutch)
+    used for:    nothing as far as I know, it's one of the default fields, but we could hypothetically cache some data or object here.
+
+  category:
+    type:        string
+    multivalued: yes
+    used by:     searchtools, drupal
+    used for:    Searchtools: Database type. Drupal: Unit type.
+
+  changed:
+    type:        tdate
+    multivalued: no
+    used by:     drupal
+    used for:    The last-update timestamp for drupal content.
+
+  comment_count:
+    type:        tlong
+    multivalued: no
+    used by:     drupal
+    used for:    Reporting the number of comments on a node.
+
+  content:
+    type:        text
+    multivalued: no
+    used by:     ejournals, staff, libguides, drupal, searchtools
+    used for:    This is our catch-all search text and metadata field.
+
+  content_unstemmed:
+    type:        text_unstemmed
+    multivalued: no
+    used by:     ejournals, staff, libguides, drupal, searchtools
+    used for:    The unstemmed version of our catch-all search text and metadata field.
+
+  creator_text:
+    type:        text
+    multivalued: no
+    used by:     searchtools
+    used for:    Text for indicating who created the database. Sometimes who created the database record.
+
+  creator:
+    type:        string
+    multivalued: no
+    used by:     searchtools
+    used for:    String for indicating who created the database. Sometimes who created the database record.
+
+  digest:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    Content indexed by nutch have this property, it's an md5 digest of the content.
+
+  edition:
+    type:        string
+    multivalued: no
+    used by:     ejournals, hathitrust
+    used for:    The edition string for the record.
+
+  email:
+    type:        string
+    multivalued: yes
+    used by:     drupal-users
+    used for:    email addresses of library staff.
+
+  end_date:
+    type:        tdate
+    multivalued: no
+    used by:     hathitrust
+    used for:    The end-date for a serial publication.
+
+  hash:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    Another field added by nutch when indexing content.
+
+  holdings:
+    type:        text
+    multivalued: false
+    used by:     ejournals
+    used for:    A statement on our holdings coverage for an ejournal record.
+
+  host:
+    type:        string_url
+    multivalued: no
+    used by:     drupal
+    used for:    Another field added by nutch when indexing content.
+
+  icon:
+    type:        string
+    multivalued: yes
+    used by:     searchtools
+    used for:    Indicating the access type via an icon.
+
+  id:
+    type:        string
+    multivalued: no
+    used by:     everything
+    used for:    This is the single id for solr, all documents must have one.
+
+  important:
+    type:        boolean
+    multivalued: no
+    used by:     drupal
+    used for:    boosting relevance ranking of documents where important=true.
+
+  imprint:
+    type:        string
+    multivalued: no
+    used by:     hathitrust
+    used for:    The imprint string.
+
+  isbn:
+    type:        string
+    multivalued: yes
+    used by:     hathitrust
+    used for:    ISBN for a hathitrust record.
+
+  issn:
+    type:        string_stdnum
+    multivalued: yes
+    used by:     ejournals, hathitrust
+    used for:    ISSN for a journal in hathitrust/ejournals.
+
+  job_title:
+    type:        text
+    multivalued: no
+    used by:     drupal-users
+    used for:    Storing job titles for drupal users.
+
+  keywords:
+    type:        text
+    multivalued: no
+    used by:     drupal, searchtools
+    used for:    free-text keywords to affect search relevance.
+
+  language:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    Recording a node's language setting.  I don't think we use this anywhere.
+
+  last_comment_or_change:
+    type:        tdate
+    multivalued: no
+    used by:     drupal
+    used for:    The date of the last comment or change, for sorting content by recency.
+
+  lccn:
+    type:        string
+    multivalued: yes
+    used by:     hathitrust
+    used for:    Library of Congress Card Catalog Number (i.e. not the Call Number).
+                 A unique identifier supplied by LC.
+
+  lc:
+    type:        string
+    multivalued: yes
+    used by:     hathitrust
+    used for:    Library of Congress Call Number
+
+  location:
+    type:        string
+    multivalued: yes
+    used by:     hathitrust
+    used for:    Identifying the originating institution for this.
+
+  mobile:
+    type:        boolean
+    multivalued: no
+    used by:     searchtools
+    used for:    Indicating whether a resource has a mobile interface.
+
+  mobile_url:
+    type:        string_url
+    multivalued: no
+    used by:     searchtools
+    used for:    A url to the mobile version of a resource. Not used yet, but planned on.
+
+  moderate:
+    type:        boolean
+    multivalued: no
+    used by:     drupal
+    used for:    Indicating the moderate flag value for the node.  
+
+  name:
+    type:        string
+    multivalued: no
+    used by:     drupal-users
+    used for:    uniqnames/friend-account user names stored by drupal.  Right now
+                 we only index library staff roles, so it'd better just be uniqnames.
+
+  new:
+    type:        boolean
+    multivalued: no
+    used by:     ejournals, searchtools
+    used for:    Indicating newly acquired or cataloged records.
+
+  new_until:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Display a record as new until this date.
+
+  nid:
+    type:        tlong
+    multivalued: no
+    used by:     drupal, searchtools, instruction-cafe
+    used for:    The node id for a drupal node.
+
+  oclc:
+    type:        string
+    multivalued: yes
+    used by:     hathitrust
+    used for:    Unique identifier for books supplied by OCLC.
+
+  og_groups_both:
+    type:        string
+    multivalued: yes
+    used by:     drupal, ejournals, searchtools, hathitrust
+    used for:    drupal: Full-text of an OG name.
+                 ejournals, searchtools: High Level Browse category.
+                 hathitrust: Company (group) who did the scanning.
+
+  og_groups:
+    type:        tlong
+    multivalued: yes
+    used by:     drupal, searchtools
+    used for:    drupal: id of the OG for this node.
+                 searchtools: term id for HLB categories associated with this node.
+
+  path_alias:
+    type:        string
+    multivalued: no
+    used by:     drupal, searchtools
+    used for:    The url_alias for this node.
+
+  path:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    The path for this node (node/NID).
+
+  phone:
+    type:        string
+    multivalued: no
+    used by:     drupal-users
+    used for:    Phone numbers of library staff.
+
+  profile_picture:
+    type:        text
+    multivalued: no
+    used by:     drupal-users
+    used for:    Linking to profile photos.
+
+  promote:
+    type:        boolean
+    multivalued: no
+    used by:     drupal
+    used for:    Indicating whether "promote to front page" was requested.
+
+  publisher_text:
+    type:        text
+    multivalued: no
+    used by:     instruction-cafe
+    used for:    searching the institution for an article.
+
+  publisher:
+    type:        string
+    multivalued: no
+    used by:     searchtools, instruction-cafe
+    used for:    searchtools: identifying the institution
+                 instruction-cafe: browsing the institution
+
+  pvc_text:
+    type:        text
+    multivalued: yes
+    used by:     searchtools
+    used for:    searching across publisher (p), vendor (v), creator (c) in one field.
+
+  pvc:
+    type:        string
+    multivalued: yes
+    used by:     searchtools
+    used for:    searching across publisher (p), vendor (v), creator (c) in one field.
+
+  segment:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    created by nutch (our filesystem indexing).
+
+  site:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    created by nutch (our filesystem indexing).
+
+  sname:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    string names for exact matches.
+
+  sort_name:
+    type:        string_sort
+    multivalued: no
+    used by:     drupal
+    used for:    sort_name for sorting on names.
+
+  sort_title:
+    type:        string_sort
+    multivalued: no
+    used by:     everything
+    used for:    a sortable title.
+
+  source:
+    type:        string
+    multivalued: no
+    used by:     everything
+    used for:    indicates the source or type of record we're looking at.
+
+  start_date:
+    type:        tdate
+    multivalued: no
+    used by:     hathitrust
+    used for:    the start date for a serial.
+
+  status:
+    type:        boolean
+    multivalued: no
+    used by:     drupal, hathitrust, searchtools, libguides, instruction-cafe
+    used for:    drupal, searchtools, libguides, instruction-cafe: published status
+                 hathitrust: pd status
+
+  sticky:
+    type:        boolean
+    multivalued: no
+    used by:     drupal
+    used for:    the sticky field for the drupal node table.
+
+  stitle:
+    type:        string_sort
+    multivalued: no
+    used by:     everything
+    used for:    sortable title field
+
+  subject:
+    type:        text
+    multivalued: no
+    used by:     ejournals, searchtools, libguides
+    used for:    HLB subjects
+
+  tags:
+    type:        string
+    multivalued: yes
+    used by:     ejournals, searchtools, libguides, drupal, instruction-cafe
+    used for:    freeform tags, and/or HLB categories
+
+  taxonomy_name:
+    type:        string
+    multivalued: yes
+    used by:     drupal, drupal-users
+    used for:    Drupal taxonomy associations
+
+  teaser_stripped:
+    type:        text
+    multivalued: no
+    used by:     drupal
+    used for:    HTML-stripped teaser-text (html must be stripped before sending to Solr).
+
+  teaser:
+    type:        text
+    multivalued: no
+    used by:     drupal
+    used for:    Teaser text for the drupal node.
+
+  text:
+    type:        text
+    multivalued: no
+    used by:     drupal
+    used for:    free-form text, generally similar to what would be in the body of a node.
+
+  tictoc_id:
+    type:        tlong
+    multivalued: no
+    used by:     ejournals
+    used for:    id for this journal under tictocs.
+
+  tid:
+    type:        string
+    multivalued: yes
+    used by:     drupal, searchtools, ejournals, drupal-users
+    used for:    taxonomy term ids applicable to this content.
+
+  timestamp:
+    type:        tdate
+    multivalued: no
+    used by:     everything
+    used for:    timestamp of the last index time.
+
+  title_initial:
+    type:        string_initial
+    multivalued: no
+    used by:     everything
+    used for:    index the initial letter of the title for an alphabetical browse
+
+  title:
+    type:        text
+    multivalued: no
+    used by:     everything
+    used for:    Nearly everything has to have a title and a body.
+
+  title_unstemmed:
+    type:        text_unstemmed
+    multivalued: no
+    used by:     everything
+    used for:    Searching titles unstemmed for higher precision.
+
+  tnid:
+    type:        tlong
+    multivalued: no
+    used by:     drupal
+    used for:    ?
+
+  toc_url:
+    type:        string_url
+    multivalued: no
+    used by:     ejournals
+    used for:    table of contents url
+
+  topic_path:
+    type:        string
+    multivalued: yes
+    used by:     ejournals
+    used for:    the pipe-delimited path of HLB topics applicable to this resource.
+
+  translate:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    ?
+
+  tstamp:
+    type:        tlong
+    multivalued: no
+    used by:     everything
+    used for:    A legacy timestamp field.
+
+  type_name:
+    type:        string
+    multivalued: no
+    used by:     drupal
+    used for:    recording the name of a content type.
+
+  type:
+    type:        string
+    multivalued: no
+    used by:     drupal, searchtools, libguides, instruction-cafe
+    used for:    drupal: content type
+                 searchtools: database type
+                 libguides: guide type
+                 instruction-cafe: contribution type
+
+  uid:
+    type:        tlong
+    multivalued: no
+    used by:     drupal, drupal-users, hathitrust
+    used for:    drupal: the uid of the node author
+                 drupal-users: the uid of the user
+                 hathitrust: the hathitrust id of the record.
+
+  uniqname:
+    type:        string
+    multivalued: no
+    used by:     drupal-users
+    used for:    drupal-users: the uniqname of the user
+
+  url:
+    type:        string_url
+    multivalued: no
+    used by:     ejournals, staff, drupal, searchtools
+    used for:    ejournals: the url for the mirlyn record
+                 staff: the url for the page that was indexed.
+                 drupal: the url for the filesystem content that was indexed.
+                 searchtools: the native link to the resource.
+
+  vendor_text:
+    type:        text
+    multivalued: no
+    used by:     searchtools
+    used for:    indicating the vendor from which we license the database in question.
+
+  vendor:
+    type:        string
+    multivalued: no
+    used by:     searchtools
+    used for:    indicating the vendor from which we license the database in question.
+
+  vid:
+    type:        tlong
+    multivalued: yes
+    used by:     drupal
+    used for:    indicating the version id for a node.
+
+
+
+-->
+<!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
  this work for additional information regarding copyright ownership.
@@ -45,7 +672,7 @@
     that avoids logging every request
 -->
 
-<schema name="example" version="1.4">
+<schema name="mlibrary-website-7.0.0" version="1.4">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.4" is Solr's version number for the schema syntax and semantics.  It should
@@ -66,13 +693,100 @@
        org.apache.solr.analysis package.
     -->
 
+    <!-- boolean type: "true" or "false" -->
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
+
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 
-    <!-- boolean type: "true" or "false" -->
-    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
-    <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
-    <fieldtype name="binary" class="solr.BinaryField"/>
+    <fieldType name="string_sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer type="index">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer class="solr.KeywordTokenizerFactory" />
+        <filter class="solr.TrimFilterFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+
+        <!-- Remove likely articles from the start of a sortable string.  It could be any language. -->
+        <!-- Arabic Transliteration: Al- -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[Aa][Ll]-" replacement="" replace="all" />
+        <!-- English: A ; Portuguese A, O -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[AaOo] ([^ ][^ ])" replacement="$1" replace="all" />
+        <!-- English: An, The -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Aa][Nn]|[Tt][Hh][Ee]) " replacement="" replace="all" />
+        <!-- Swedish: De, Den, Det -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Ee]|[Dd][Ee][Nn]|[Dd][Ee][Tt]) " replacement="" replace="all" />
+        <!-- Dutch: Een, De, Het -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Ee]|[Hh][Ee][Tt]|[Ee][Ee][Nn]) " replacement="" replace="all" />
+        <!-- Swedish/Dutch? D' ;  French L' ; Italian L' -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[DdLl]'" replacement="" replace="all" />
+        <!-- German: Das, Der, Die -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Aa][Ss]|[Dd][Ee][Rr]|[Dd][Ii][Ee]) " replacement="" replace="all" />
+        <!-- Italian: Gli, Lo, Il, La, uno -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Gg][Ll][Ii]|[Ii][Ll]|[Ll]['AaOo]|[Uu][Nn][Oo]) " replacement="" replace="all" />
+        <!-- French: Le, La, Les, Un, Une, des-->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ll]['AaEe]|[Uu][Nn]|[Uu][Nn][Ee]|[LlDd][Ee][Ss]) " replacement="" replace="all" />
+        <!-- Portuguese Os, As, Um, Uns, Uma, Umas -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([AaOo][Ss]|[Uu][Mm]|[Uu][Nn][Ss]|[Uu][Mm][Aa]|[Uu][Mm][Aa][Ss]) " replacement="" replace="all" />
+        <!-- Spanish: El, La, Los, Las, Un, Una, Unos, Unas-->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ee][Ll]|[Ll][Aa]|[Ll][OoAa][Ss]|[Uu][Nn]|[Uu][Nn][OoAa]|[Uu][Nn][OoAa][Ss]) " replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="string_url" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+       <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> -->
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="string_initial" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer  class="solr.KeywordTokenizerFactory" />
+        <filter     class="solr.TrimFilterFactory" />
+        <filter     class="solr.LowerCaseFilterFactory" />
+        <!-- Remove likely articles from the start of a sortable string.  It could be any language. -->
+        <!-- Arabic Transliteration: Al- -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[Aa][Ll]-" replacement="" replace="all" />
+        <!-- English: A ; Portuguese A, O -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[AaOo] ([^ ][^ ])" replacement="$1" replace="all" />
+        <!-- English: An, The -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Aa][Nn]|[Tt][Hh][Ee]) " replacement="" replace="all" />
+        <!-- Swedish: De, Den, Det -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Ee]|[Dd][Ee][Nn]|[Dd][Ee][Tt]) " replacement="" replace="all" />
+        <!-- Dutch: Een, De, Het -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Ee]|[Hh][Ee][Tt]|[Ee][Ee][Nn]) " replacement="" replace="all" />
+        <!-- Swedish/Dutch? D' ;  French L' ; Italian L' -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[DdLl]'" replacement="" replace="all" />
+        <!-- German: Das, Der, Die -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Dd][Aa][Ss]|[Dd][Ee][Rr]|[Dd][Ii][Ee]) " replacement="" replace="all" />
+        <!-- Italian: Gli, Lo, Il, La, uno -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Gg][Ll][Ii]|[Ii][Ll]|[Ll]['AaOo]|[Uu][Nn][Oo]) " replacement="" replace="all" />
+        <!-- French: Le, La, Les, Un, Une, des-->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ll]['AaEe]|[Uu][Nn]|[Uu][Nn][Ee]|[LlDd][Ee][Ss]) " replacement="" replace="all" />
+        <!-- Portuguese Os, As, Um, Uns, Uma, Umas -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([AaOo][Ss]|[Uu][Mm]|[Uu][Nn][Ss]|[Uu][Mm][Aa]|[Uu][Mm][Aa][Ss]) " replacement="" replace="all" />
+        <!-- Spanish: El, La, Los, Las, Un, Una, Unos, Unas-->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ee][Ll]|[Ll][Aa]|[Ll][OoAa][Ss]|[Uu][Nn]|[Uu][Nn][OoAa]|[Uu][Nn][OoAa][Ss]) " replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" side="front"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="string_stdnum" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[\s\-\.]*([\d\.\-]+x?).*$" replacement="$1"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="[\-\.]" replacement="" replace="all"/>
+      </analyzer>
+    </fieldType>
 
     <!-- The optional sortMissingLast and sortMissingFirst attributes are
          currently supported on types that are sorted internally as strings
@@ -91,14 +805,6 @@
     -->    
 
     <!--
-      Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
-    -->
-    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-
-    <!--
      Numeric field types that index each value at various levels of precision
      to accelerate range queries when the number of values between the range
      endpoints is large. See the javadoc for NumericRangeQuery for internal
@@ -108,10 +814,8 @@
      indexed per value, slightly larger index size, and faster range queries.
      A precisionStep of 0 disables indexing at different precision levels.
     -->
-    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
-    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
 
     <!-- The format for this date field is of the form 1995-12-31T23:59:59Z, and
          is a more restricted form of the canonical representation of dateTime
@@ -135,56 +839,9 @@
 
          Note: For faster range queries, consider the tdate type
       -->
-    <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
 
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
-
-
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
-
-      Plain numeric field types that store and index the text
-      value verbatim (and hence don't support range queries, since the
-      lexicographic ordering isn't equal to the numeric ordering)
-    -->
-    <fieldType name="pint" class="solr.IntField" omitNorms="true"/>
-    <fieldType name="plong" class="solr.LongField" omitNorms="true"/>
-    <fieldType name="pfloat" class="solr.FloatField" omitNorms="true"/>
-    <fieldType name="pdouble" class="solr.DoubleField" omitNorms="true"/>
-    <fieldType name="pdate" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
-
-
-    <!--
-      Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions).
-      Use Trie based fields instead. As of Solr 3.5 and 4.x, Trie based fields support sortMissingFirst/Last
-
-      Numeric field types that manipulate the value into
-      a string value that isn't human-readable in its internal form,
-      but with a lexicographic ordering the same as the numeric ordering,
-      so that range queries work correctly.
-    -->
-    <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="slong" class="solr.SortableLongField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
-    <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
-
-
-    <!-- The "RandomSortField" is not used to store or search any
-         data.  You can declare fields of this type it in your schema
-         to generate pseudo-random orderings of your docs for sorting 
-         purposes.  The ordering is generated based on the field name 
-         and the version of the index, As long as the index version
-         remains unchanged, and the same field name is reused,
-         the ordering of the docs will be consistent.  
-         If you want different psuedo-random orderings of documents,
-         for the same version of the index, use a dynamicField and
-         change the name
-     -->
-    <fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
     <!-- solr.TextField allows the specification of custom text analyzers
          specified as a tokenizer and a list of token filters. Different
@@ -198,427 +855,233 @@
          http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
      -->
 
-    <!-- One can also specify an existing Analyzer class that has a
-         default constructor via the class attribute on the analyzer element
-    <fieldType name="text_greek" class="solr.TextField">
-      <analyzer class="org.apache.lucene.analysis.el.GreekAnalyzer"/>
-    </fieldType>
-    -->
-
-    <!-- A text field that only splits on whitespace for exact matching of words -->
-    <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- A general text field that has reasonable, generic
-         cross-language defaults: it tokenizes with StandardTokenizer,
-	 removes stop words from case-insensitive "stopwords.txt"
-	 (empty by default), and down cases.  At query time only, it
-	 also applies synonyms. -->
-    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <!-- in this example, we will only use synonyms at query time
-        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-        -->
-        <filter class="solr.LowerCaseFilterFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer  class="solr.StandardTokenizerFactory"/>
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
+        <filter     class="solr.LowerCaseFilterFactory"/>
+        <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
+        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer  class="solr.StandardTokenizerFactory" />
+        <filter     class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
+        <filter     class="solr.LowerCaseFilterFactory" />
+        <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
+        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
 
-    <!-- A text field with defaults appropriate for English: it
-         tokenizes with StandardTokenizer, removes English stop words
-         (stopwords_en.txt), down cases, protects words from protwords.txt, and
-         finally applies Porter's stemming.  The query time analyzer
-         also applies synonyms from synonyms.txt. -->
-    <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="text_unstemmed" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <!-- in this example, we will only use synonyms at query time
-        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-        -->
-        <!-- Case insensitive stop word removal.
-          add enablePositionIncrements=true in both the index and query
-          analyzers to leave a 'gap' for more accurate phrase queries.
-        -->
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords_en.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.LowerCaseFilterFactory"/>
-	<filter class="solr.EnglishPossessiveFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
-	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
-        <filter class="solr.EnglishMinimalStemFilterFactory"/>
-	-->
-        <filter class="solr.PorterStemFilterFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory" />
+        <tokenizer  class="solr.StandardTokenizerFactory"/>
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
+        <filter     class="solr.LowerCaseFilterFactory"/>
+        <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords_en.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.LowerCaseFilterFactory"/>
-	<filter class="solr.EnglishPossessiveFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
-	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
-        <filter class="solr.EnglishMinimalStemFilterFactory"/>
-	-->
-        <filter class="solr.PorterStemFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- A text field with defaults appropriate for English, plus
-	 aggressive word-splitting and autophrase features enabled.
-	 This field is just like text_en, except it adds
-	 WordDelimiterFilter to enable splitting and matching of
-	 words on case-change, alpha numeric boundaries, and
-	 non-alphanumeric chars.  This means certain compound word
-	 cases will work, for example query "wi fi" will match
-	 document "WiFi" or "wi-fi".  However, other cases will still
-	 not match, for example if the query is "wifi" and the
-	 document is "wi fi" or if the query is "wi-fi" and the
-	 document is "wifi".
-        -->
-    <fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
-      <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <!-- in this example, we will only use synonyms at query time
-        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
-        -->
-        <!-- Case insensitive stop word removal.
-          add enablePositionIncrements=true in both the index and query
-          analyzers to leave a 'gap' for more accurate phrase queries.
-        -->
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords_en.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
-        <filter class="solr.PorterStemFilterFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords_en.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
-        <filter class="solr.PorterStemFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- Less flexible matching, but less false matches.  Probably not ideal for product names,
-         but may be good for SKUs.  Can insert dashes in the wrong place and still match. -->
-    <fieldType name="text_en_splitting_tight" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
-      <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_en.txt"/>
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
-        <filter class="solr.EnglishMinimalStemFilterFactory"/>
-        <!-- this filter can remove any duplicate tokens that appear at the same position - sometimes
-             possible with WordDelimiterFilter in conjuncton with stemming. -->
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- Just like text_general except it reverses the characters of
-	 each token, to enable more efficient leading wildcard queries. -->
-    <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
-           maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.LowerCaseFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- charFilter + WhitespaceTokenizer  -->
-    <!--
-    <fieldType name="text_char_norm" class="solr.TextField" positionIncrementGap="100" >
-      <analyzer>
-        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-      </analyzer>
-    </fieldType>
-    -->
-
-    <!-- This is an example of using the KeywordTokenizer along
-         With various TokenFilterFactories to produce a sortable field
-         that does not include some properties of the source text
-      -->
-    <fieldType name="alphaOnlySort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
-        <!-- KeywordTokenizer does no actual tokenizing, so the entire
-             input string is preserved as a single token
-          -->
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <!-- The LowerCase TokenFilter does what you expect, which can be
-             when you want your sorting to be case insensitive
-          -->
-        <filter class="solr.LowerCaseFilterFactory" />
-        <!-- The TrimFilter removes any leading or trailing whitespace -->
-        <filter class="solr.TrimFilterFactory" />
-        <!-- The PatternReplaceFilter gives you the flexibility to use
-             Java Regular expression to replace any sequence of characters
-             matching a pattern with an arbitrary replacement string, 
-             which may include back references to portions of the original
-             string matched by the pattern.
-             
-             See the Java Regular Expression documentation for more
-             information on pattern and replacement string syntax.
-             
-             http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
-          -->
-        <filter class="solr.PatternReplaceFilterFactory"
-                pattern="([^a-z])" replacement="" replace="all"
-        />
-      </analyzer>
-    </fieldType>
-    
-    <fieldtype name="phonetic" stored="false" indexed="true" class="solr.TextField" >
-      <analyzer>
-        <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="solr.DoubleMetaphoneFilterFactory" inject="false"/>
-      </analyzer>
-    </fieldtype>
-
-    <fieldtype name="payloads" stored="false" indexed="true" class="solr.TextField" >
-      <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <!--
-        The DelimitedPayloadTokenFilter can put payloads on tokens... for example,
-        a token of "foo|1.4"  would be indexed as "foo" with a payload of 1.4f
-        Attributes of the DelimitedPayloadTokenFilterFactory : 
-         "delimiter" - a one character delimiter. Default is | (pipe)
-	 "encoder" - how to encode the following value into a playload
-	    float -> org.apache.lucene.analysis.payloads.FloatEncoder,
-	    integer -> o.a.l.a.p.IntegerEncoder
-	    identity -> o.a.l.a.p.IdentityEncoder
-            Fully Qualified class name implementing PayloadEncoder, Encoder must have a no arg constructor.
-         -->
-        <filter class="solr.DelimitedPayloadTokenFilterFactory" encoder="float"/>
-      </analyzer>
-    </fieldtype>
-
-    <!-- lowercases the entire field value, keeping it as a single token.  -->
-    <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-      </analyzer>
-    </fieldType>
-
-    <fieldType name="text_path" class="solr.TextField" positionIncrementGap="100">
-      <analyzer>
-        <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory" />
+        <tokenizer  class="solr.StandardTokenizerFactory" />
+        <filter     class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
+        <filter     class="solr.LowerCaseFilterFactory" />
+        <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <!-- since fields of this type are by default not stored or indexed,
          any data added to them will be ignored outright.  --> 
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
-
-    <!-- This point type indexes the coordinates as separate fields (subFields)
-      If subFieldType is defined, it references a type, and a dynamic field
-      definition is created matching *___<typename>.  Alternately, if 
-      subFieldSuffix is defined, that is used to create the subFields.
-      Example: if subFieldType="double", then the coordinates would be
-        indexed in fields myloc_0___double,myloc_1___double.
-      Example: if subFieldSuffix="_d" then the coordinates would be indexed
-        in fields myloc_0_d,myloc_1_d
-      The subFields are an implementation detail of the fieldType, and end
-      users normally should not need to know about them.
-     -->
-    <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
-
-    <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
-    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
-
-   <!--
-    A Geohash is a compact representation of a latitude longitude pair in a single field.
-    See http://wiki.apache.org/solr/SpatialSearch
-   -->
-    <fieldtype name="geohash" class="solr.GeoHashField"/>
- </types>
+  </types>
 
 
- <fields>
-   <!-- Valid attributes for fields:
-     name: mandatory - the name for the field
-     type: mandatory - the name of a previously defined type from the 
-       <types> section
-     indexed: true if this field should be indexed (searchable or sortable)
-     stored: true if this field should be retrievable
-     multiValued: true if this field may contain multiple values per document
-     omitNorms: (expert) set to true to omit the norms associated with
-       this field (this disables length normalization and index-time
-       boosting for the field, and saves some memory).  Only full-text
-       fields or fields that need an index-time boost need norms.
-     termVectors: [false] set to true to store the term vector for a
-       given field.
-       When using MoreLikeThis, fields used for similarity should be
-       stored for best performance.
-     termPositions: Store position information with the term vector.  
-       This will increase storage costs.
-     termOffsets: Store offset information with the term vector. This 
-       will increase storage costs.
-     default: a value that should be used if no value is specified
-       when adding a document.
-   -->
+  <fields>
+    <field name="id"                     type="string"         indexed="true"  stored="true" /> 
+    <field name="og_groups"              type="tlong"          indexed="true"  stored="true" multiValued="true"/>
+    <field name="og_groups_both"         type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="tags"                   type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="url"                    type="string_url"     indexed="true"  stored="true"/>
+    <field name="access_url"             type="string_url"     indexed="true"  stored="true" multiValued="true"/>
+    <field name="access_type"            type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="access_856_3"           type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="segment"                type="string"         indexed="false" stored="true"/>
+    <field name="digest"                 type="string"         indexed="false" stored="true"/>
+    <field name="host"                   type="string_url"     indexed="true"  stored="false"/>
+    <field name="site"                   type="string"         indexed="false" stored="true"/>
+    <field name="hash"                   type="string"         indexed="false" stored="true"/>
+    <field name="title"                  type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
+    <field name="title_initial"          type="string_initial" indexed="true"  stored="false"/>
+    <field name="title_unstemmed"        type="text_unstemmed" indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
+    <field name="all_titles_unstemmed"   type="text_unstemmed" indexed="true"  stored="true" 
+           termVectors="true"            omitNorms="true"      multiValued="true" />
+    <field name="stitle"                 type="string_sort"    indexed="true"  stored="true"
+           termVectors="true"            omitNorms="true"      multiValued="true" />
+    <field name="alt"                    type="text"           indexed="true"  stored="true"
+           termVectors="true"            omitNorms="true"      multiValued="true"/>
+    <field name="sort_title"             type="string_sort"    indexed="true"  stored="true"/>
+    <field name="tstamp"                 type="tlong"          indexed="false" stored="true"/>
+    <field name="boost"                  type="tfloat"         indexed="false" stored="true"/>
+    <field name="cache"                  type="string"         indexed="false" stored="true"/>
+    <field name="content"                type="text"           indexed="true"  stored="true"/>
+    <field name="content_unstemmed"      type="text_unstemmed" indexed="true"  stored="true"/>
+    <field name="subject"                type="text"           indexed="true"  stored="true"/>
+    <field name="holdings"               type="text"           indexed="true"  stored="true"/>
+    <field name="author"                 type="text"           indexed="true"  stored="true"/>
+    <field name="author_s"               type="string"         indexed="true"  stored="true"/>
+    <field name="author_unstemmed"       type="text_unstemmed" indexed="true"  stored="true"/>
+    <field name="author_initial"         type="string_initial" indexed="true"  stored="false"/>
+    <field name="publisher"              type="string"         indexed="true"  stored="true"/>
+    <field name="publisher_text"         type="text"           indexed="true"  stored="true"/>
+    <field name="vendor"                 type="string"         indexed="true"  stored="true"/>
+    <field name="vendor_text"            type="text"           indexed="true"  stored="true"/>
+    <field name="creator"                type="string"         indexed="true"  stored="true"/>
+    <field name="creator_text"           type="text"           indexed="true"  stored="true"/>
+    <!-- Publisher - Vendor - Creator -->
+    <field name="pvc"                    type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="pvc_text"               type="text"           indexed="true"  stored="true" multiValued="true"/>
+    <field name="edition"                type="string"         indexed="true"  stored="true"/>
+    <field name="location"               type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="imprint"                type="string"         indexed="true"  stored="true"/>
+    <field name="issn"                   type="string_stdnum"  indexed="true"  stored="true"  multiValued="true"/>
+    <field name="lccn"                   type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="isbn"                   type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="oclc"                   type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="lc"                     type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="toc_url"                type="string_url"     indexed="true"  stored="true"/>
+    <field name="tictoc_id"              type="tlong"          indexed="true"  stored="true"/>
+    <field name="topic_path"             type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="category"               type="string"         indexed="true"  stored="true"  multiValued="true"/>
+    <field name="profile_picture"        type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
+    <field name="job_title"              type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
+    <field name="new"                    type="boolean"        indexed="true"  stored="true"/>
+    <field name="new_until"              type="tdate"          indexed="true"  stored="true"/>
+    <field name="mobile"                 type="boolean"        indexed="true"  stored="true"/>
+    <field name="mobile_url"             type="string_url"     indexed="true"  stored="true"/>
+    <field name="icon"                   type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="phone"                  type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="uniqname"               type="string"         indexed="true"  stored="true" />
+    <field name="email"                  type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="body"                   type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="teaser"                 type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="teaser_stripped"        type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="keywords"               type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="type"                   type="string"         indexed="true"  stored="true"/>
+    <field name="type_name"              type="string"         indexed="true"  stored="true"/>
+    <field name="path"                   type="string"         indexed="true"  stored="true"/>
+    <field name="path_alias"             type="string"         indexed="true"  stored="true" termVectors="true"/>
+    <field name="uid"                    type="tlong"          indexed="true"  stored="true"/>
+    <field name="name"                   type="string"         indexed="true"  stored="true" termVectors="true"/>
+    <field name="sname"                  type="string"         indexed="true"  stored="false"/>
+    <field name="sort_name"              type="string_sort"    indexed="true"  stored="false"/>
+    <field name="changed"                type="tdate"          indexed="true"  stored="true"/>
+    <field name="nid"                    type="tlong"          indexed="true"  stored="true"/>
+    <field name="last_comment_or_change" type="tdate"          indexed="true"  stored="true"/>
+    <field name="status"                 type="boolean"        indexed="true"  stored="true"/>
+    <field name="important"              type="boolean"        indexed="true"  stored="true"/>
+    <field name="promote"                type="boolean"        indexed="true"  stored="true"/>
+    <field name="moderate"               type="boolean"        indexed="true"  stored="true"/>
+    <field name="sticky"                 type="boolean"        indexed="true"  stored="true"/>
+    <field name="tnid"                   type="tlong"          indexed="true"  stored="true"/>
+    <field name="translate"              type="boolean"        indexed="true"  stored="true"/>
+    <field name="language"               type="string"         indexed="true"  stored="true"/>
+    <field name="comment_count"          type="tlong"          indexed="true"  stored="true"/>
+    <field name="tid"                    type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="vid"                    type="tlong"          indexed="true"  stored="true" multiValued="true"/>
+    <field name="taxonomy_name"          type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="ancestor_name"          type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <field name="ancestor_tid"           type="tlong"          indexed="true"  stored="true" multiValued="true"/>
+    <field name="text"                   type="text"           indexed="true"  stored="false"/>
 
-   <field name="id" type="string" indexed="true" stored="true" required="true" /> 
-   <field name="sku" type="text_en_splitting_tight" indexed="true" stored="true" omitNorms="true"/>
-   <field name="name" type="text_general" indexed="true" stored="true"/>
-   <field name="alphaNameSort" type="alphaOnlySort" indexed="true" stored="false"/>
-   <field name="manu" type="text_general" indexed="true" stored="true" omitNorms="true"/>
-   <field name="cat" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="features" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="includes" type="text_general" indexed="true" stored="true" termVectors="true" termPositions="true" termOffsets="true" />
+    <!-- Here, default is used to create a "timestamp" field indicating
+         When each document was indexed.
+      -->
+    <field name="timestamp"              type="tdate"          indexed="true"  stored="true" default="NOW" multiValued="false"/>
+    <field name="start_date"             type="tdate"          indexed="true"  stored="true" multiValued="false"/>
+    <field name="end_date"               type="tdate"          indexed="true"  stored="true" multiValued="false"/>
+    <field name="source"                 type="string"         indexed="true"  stored="true" default="drupal"/>
 
-   <field name="weight" type="float" indexed="true" stored="true"/>
-   <field name="price"  type="float" indexed="true" stored="true"/>
-   <field name="popularity" type="int" indexed="true" stored="true" />
-   <field name="inStock" type="boolean" indexed="true" stored="true" />
+    <dynamicField name="im_vid_*"        type="tlong"          indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="sm_vid_*"        type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="isfield*"        type="tlong"          indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="imfield*"        type="tlong"          indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="smfield*"        type="string"         indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="tmfield*"        type="text"           indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="ssfield*"        type="string"         indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="tsfield*"        type="text"           indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="dsfield*"        type="tdate"          indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="dmfield*"        type="tdate"          indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="bmfield*"        type="boolean"        indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="bsfield*"        type="boolean"        indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="psfield*"        type="tfloat"         indexed="true"  stored="true" multiValued="false"/>
+    <dynamicField name="pmfield*"        type="tfloat"         indexed="true"  stored="true" multiValued="true"/>
+ 
 
-   <!--
-   The following store examples are used to demonstrate the various ways one might _CHOOSE_ to
-    implement spatial.  It is highly unlikely that you would ever have ALL of these fields defined.
-    -->
-   <field name="store" type="location" indexed="true" stored="true"/>
 
-   <!-- Common metadata fields, named specifically to match up with
-     SolrCell metadata when parsing rich documents such as Word, PDF.
-     Some fields are multiValued only because Tika currently may return
-     multiple values for them.
-   -->
-   <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="subject" type="text_general" indexed="true" stored="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true"/>
-   <field name="comments" type="text_general" indexed="true" stored="true"/>
-   <field name="author" type="text_general" indexed="true" stored="true"/>
-   <field name="keywords" type="text_general" indexed="true" stored="true"/>
-   <field name="category" type="text_general" indexed="true" stored="true"/>
-   <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="last_modified" type="date" indexed="true" stored="true"/>
-   <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>
+    <!-- uncomment the following to ignore any fields that don't already match an existing
+         field name or dynamic field, rather than reporting them as an error.
+         alternately, change the type="ignored" to some other type e.g. "text" if you want
+         unknown fields indexed and/or stored by default -->
+    <dynamicField name="*" type="ignored" multiValued="true"/>
 
-   <!-- catchall field, containing all other searchable text fields (implemented
-        via copyField further on in this schema  -->
-   <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-   <!-- catchall text field that indexes tokens both normally and in reverse for efficient
-        leading wildcard queries. -->
-   <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
-
-   <!-- non-tokenized version of manufacturer to make it easier to sort or group
-        results by manufacturer.  copied from "manu" via copyField -->
-   <field name="manu_exact" type="string" indexed="true" stored="false"/>
-
-   <field name="payloads" type="payloads" indexed="true" stored="true"/>
-
-   <!-- Uncommenting the following will create a "timestamp" field using
-        a default value of "NOW" to indicate when each document was indexed.
-     -->
-   <!--
-   <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
-     -->
    
-
-   <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
-        will be used if the name matches any of the patterns.
-        RESTRICTION: the glob-like pattern in the name attribute must have
-        a "*" only at the start or the end.
-        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
-        Longer patterns will be matched first.  if equal size patterns
-        both match, the first appearing in the schema will be used.  -->
-   <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
-   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true"/>
-   <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
-   <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
-   <dynamicField name="*_txt" type="text_general"    indexed="true"  stored="true" multiValued="true"/>
-   <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
-   <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
-   <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
-
-   <!-- Type used to index the lat and lon components for the "location" FieldType -->
-   <dynamicField name="*_coordinate"  type="tdouble" indexed="true"  stored="false"/>
-
-   <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
-   <dynamicField name="*_p"  type="location" indexed="true" stored="true"/>
-
-   <!-- some trie-coded dynamic fields for faster range queries -->
-   <dynamicField name="*_ti" type="tint"    indexed="true"  stored="true"/>
-   <dynamicField name="*_tl" type="tlong"   indexed="true"  stored="true"/>
-   <dynamicField name="*_tf" type="tfloat"  indexed="true"  stored="true"/>
-   <dynamicField name="*_td" type="tdouble" indexed="true"  stored="true"/>
-   <dynamicField name="*_tdt" type="tdate"  indexed="true"  stored="true"/>
-   
-   <dynamicField name="*_pi"  type="pint"    indexed="true"  stored="true"/>
-
-   <dynamicField name="ignored_*" type="ignored" multiValued="true"/>
-   <dynamicField name="attr_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
-
-   <dynamicField name="random_*" type="random" />
-
-   <!-- uncomment the following to ignore any fields that don't already match an existing 
-        field name or dynamic field, rather than reporting them as an error. 
-        alternately, change the type="ignored" to some other type e.g. "text" if you want 
-        unknown fields indexed and/or stored by default --> 
-   <!--dynamicField name="*" type="ignored" multiValued="true" /-->
-   
- </fields>
+  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>id</uniqueKey>
+  <uniqueKey>id</uniqueKey>
+
+  <copyField source="content"   dest="content_unstemmed"/>
+  <copyField source="name"      dest="sname" />
+  <copyField source="name"      dest="sort_name" />
+  <copyField source="ts_vid_*"  dest="taxonomy_names" />
+  <copyField source="nid"       dest="id"/>
+  <copyField source="url"       dest="id"/>
+  <copyField source="text"      dest="content"/>
+  <copyField source="text"      dest="content_unstemmed"/>
+  <copyField source="title"     dest="title_initial"/>
+  <copyField source="title"     dest="title_unstemmed"/>
+  <copyField source="title"     dest="all_titles_unstemmed"/>
+  <copyField source="alt"       dest="all_titles_unstemmed"/>
+  <copyField source="author"    dest="author_unstemmed"/>
+  <copyField source="author"    dest="author_s"/>
+  <copyField source="author"    dest="author_initial"/>
+  <copyField source="publisher" dest="publisher_text"/>
+  <copyField source="vendor"    dest="vendor_text"/>
+  <copyField source="creator"   dest="creator_text"/>
+  <copyField source="publisher" dest="pvc" />
+  <copyField source="vendor"    dest="pvc" />
+  <copyField source="creator"   dest="pvc" />
+  <copyField source="publisher" dest="pvc_text" />
+  <copyField source="vendor"    dest="pvc_text" />
+  <copyField source="creator"   dest="pvc_text" />
+
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
- <defaultSearchField>text</defaultSearchField>
+ <defaultSearchField>content</defaultSearchField>
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
- <solrQueryParser defaultOperator="OR"/>
+ <solrQueryParser defaultOperator="AND"/>
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-   <copyField source="cat" dest="text"/>
-   <copyField source="name" dest="text"/>
-   <copyField source="manu" dest="text"/>
-   <copyField source="features" dest="text"/>
-   <copyField source="includes" dest="text"/>
-   <copyField source="manu" dest="manu_exact"/>
 	
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
