@@ -25,8 +25,11 @@ Types:
     string:         basic strings.
     string_sort:    specially processed strings for sorting
                     (omits the initial article where possible).
+    string_sort_english: specially processed strings for sorting
+                         (omits the initial article for English where possible).
     string_url:     specially processed strings for storing urls.
     string_initial: just the first character of the string.
+    string_initial_english: just the first character of the string, English articles removed.
     string_stdnum:  specially processed strings for storing isbns and issns.
                     Stolen from Mirlyn.
   Text:
@@ -434,6 +437,14 @@ Fields:
     used by:     everything
     used for:    a sortable title.
 
+  sort_english_title:
+    A D6 version of sort_title_english.  This name will exist for a period during transition.
+  sort_title_english:
+    type:        string_sort_english
+    multivalued: no
+    used by:     searchtools
+    used for:    a sortable title with English articles ignored.
+
   source:
     type:        string
     multivalued: no
@@ -524,6 +535,12 @@ Fields:
     multivalued: no
     used by:     everything
     used for:    index the initial letter of the title for an alphabetical browse
+
+  title_initial_english:
+    type:        string_initial_english
+    multivalued: no
+    used by:     everything
+    used for:    index the initial letter of the title for an alphabetical browse in English.
 
   title:
     type:        text
@@ -735,6 +752,24 @@ Fields:
       </analyzer>
     </fieldType>
 
+    <fieldType name="string_sort_english" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer type="index">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer class="solr.KeywordTokenizerFactory" />
+        <filter class="solr.TrimFilterFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+
+        <!-- Remove likely articles from the start of a sortable string.  It could be any language. -->
+        <!-- English: A  -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[AaOo] ([^ ][^ ])" replacement="$1" replace="all" />
+        <!-- English: An, The -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Aa][Nn]|[Tt][Hh][Ee]) " replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
+      </analyzer>
+    </fieldType>
+
     <fieldType name="string_url" class="solr.TextField" sortMissingLast="true" omitNorms="true">
        <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -773,6 +808,24 @@ Fields:
         <filter class="solr.PatternReplaceFilterFactory" pattern="^([AaOo][Ss]|[Uu][Mm]|[Uu][Nn][Ss]|[Uu][Mm][Aa]|[Uu][Mm][Aa][Ss]) " replacement="" replace="all" />
         <!-- Spanish: El, La, Los, Las, Un, Una, Unos, Unas-->
         <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ee][Ll]|[Ll][Aa]|[Ll][OoAa][Ss]|[Uu][Nn]|[Uu][Nn][OoAa]|[Uu][Nn][OoAa][Ss]) " replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" side="front"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="string_initial_english" class="solr.TextField" sortMissingLast="true" omitNorms="true">
+      <analyzer>
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer  class="solr.KeywordTokenizerFactory" />
+        <filter     class="solr.TrimFilterFactory" />
+        <filter     class="solr.LowerCaseFilterFactory" />
+        <!-- Remove likely articles from the start of a sortable string.  It could be any language. -->
+        <!-- English: A -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[Aa] ([^ ][^ ])" replacement="$1" replace="all" />
+        <!-- English: An, The -->
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^([Aa][Nn]|[Tt][Hh][Ee]) " replacement="" replace="all" />
         <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
         <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" side="front"/>
@@ -925,6 +978,7 @@ Fields:
     <field name="hash"                   type="string"         indexed="false" stored="true"/>
     <field name="title"                  type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
     <field name="title_initial"          type="string_initial" indexed="true"  stored="false"/>
+    <field name="title_initial_english"  type="string_initial_english" indexed="true"  stored="false"/>
     <field name="title_unstemmed"        type="text_unstemmed" indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
     <field name="all_titles_unstemmed"   type="text_unstemmed" indexed="true"  stored="true" 
            termVectors="true"            omitNorms="true"      multiValued="true" />
@@ -933,6 +987,8 @@ Fields:
     <field name="alt"                    type="text"           indexed="true"  stored="true"
            termVectors="true"            omitNorms="true"      multiValued="true"/>
     <field name="sort_title"             type="string_sort"    indexed="true"  stored="true"/>
+    <field name="sort_title_english"     type="string_sort_english" indexed="true"  stored="true"/>
+    <field name="sort_english_title"     type="string_sort_english" indexed="true"  stored="true"/>
     <field name="tstamp"                 type="tlong"          indexed="false" stored="true"/>
     <field name="boost"                  type="tfloat"         indexed="false" stored="true"/>
     <field name="cache"                  type="string"         indexed="false" stored="true"/>
@@ -1046,30 +1102,33 @@ Fields:
    -->
   <uniqueKey>id</uniqueKey>
 
-  <copyField source="content"   dest="content_unstemmed"/>
-  <copyField source="name"      dest="sname" />
-  <copyField source="name"      dest="sort_name" />
-  <copyField source="ts_vid_*"  dest="taxonomy_names" />
-  <copyField source="nid"       dest="id"/>
-  <copyField source="url"       dest="id"/>
-  <copyField source="text"      dest="content"/>
-  <copyField source="text"      dest="content_unstemmed"/>
-  <copyField source="title"     dest="title_initial"/>
-  <copyField source="title"     dest="title_unstemmed"/>
-  <copyField source="title"     dest="all_titles_unstemmed"/>
-  <copyField source="alt"       dest="all_titles_unstemmed"/>
-  <copyField source="author"    dest="author_unstemmed"/>
-  <copyField source="author"    dest="author_s"/>
-  <copyField source="author"    dest="author_initial"/>
-  <copyField source="publisher" dest="publisher_text"/>
-  <copyField source="vendor"    dest="vendor_text"/>
-  <copyField source="creator"   dest="creator_text"/>
-  <copyField source="publisher" dest="pvc" />
-  <copyField source="vendor"    dest="pvc" />
-  <copyField source="creator"   dest="pvc" />
-  <copyField source="publisher" dest="pvc_text" />
-  <copyField source="vendor"    dest="pvc_text" />
-  <copyField source="creator"   dest="pvc_text" />
+  <copyField source="content"    dest="content_unstemmed"/>
+  <copyField source="name"       dest="sname" />
+  <copyField source="name"       dest="sort_name" />
+  <copyField source="ts_vid_*"   dest="taxonomy_names" />
+  <copyField source="nid"        dest="id"/>
+  <copyField source="url"        dest="id"/>
+  <copyField source="text"       dest="content"/>
+  <copyField source="text"       dest="content_unstemmed"/>
+  <copyField source="title"      dest="title_initial"/>
+  <copyField source="title"      dest="title_initial_english"/>
+  <copyField source="title"      dest="title_unstemmed"/>
+  <copyField source="title"      dest="all_titles_unstemmed"/>
+  <copyField source="alt"        dest="all_titles_unstemmed"/>
+  <copyField source="sort_title" dest="sort_title_english"/>
+  <copyField source="sort_title" dest="sort_english_title"/>
+  <copyField source="author"     dest="author_unstemmed"/>
+  <copyField source="author"     dest="author_s"/>
+  <copyField source="author"     dest="author_initial"/>
+  <copyField source="publisher"  dest="publisher_text"/>
+  <copyField source="vendor"     dest="vendor_text"/>
+  <copyField source="creator"    dest="creator_text"/>
+  <copyField source="publisher"  dest="pvc" />
+  <copyField source="vendor"     dest="pvc" />
+  <copyField source="creator"    dest="pvc" />
+  <copyField source="publisher"  dest="pvc_text" />
+  <copyField source="vendor"     dest="pvc_text" />
+  <copyField source="creator"    dest="pvc_text" />
 
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
