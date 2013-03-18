@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  MLibrary solr schema 7.0.0
+  MLibrary solr schema 7.0.1
 
 Versioning: x.y.z
   x: match this to the major version of Drupal that we're using.
@@ -411,7 +411,7 @@ Fields:
     type:        string
     multivalued: no
     used by:     drupal
-    used for:    created by nutch (our filesystem indexing).
+    used for:    created by nutch (our filesystem indexing), drupal (encodes version).
 
   site:
     type:        string
@@ -689,7 +689,7 @@ Fields:
     that avoids logging every request
 -->
 
-<schema name="mlibrary-website-7.0.0" version="1.4">
+<schema name="mlibrary-website-7.0.1" version="1.4">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.4" is Solr's version number for the schema syntax and semantics.  It should
@@ -971,7 +971,7 @@ Fields:
     <field name="access_url"             type="string_url"     indexed="true"  stored="true" multiValued="true"/>
     <field name="access_type"            type="string"         indexed="true"  stored="true" multiValued="true"/>
     <field name="access_856_3"           type="string"         indexed="true"  stored="true" multiValued="true"/>
-    <field name="segment"                type="string"         indexed="false" stored="true"/>
+    <field name="segment"                type="string"         indexed="true"  stored="true"/>
     <field name="digest"                 type="string"         indexed="false" stored="true"/>
     <field name="host"                   type="string_url"     indexed="true"  stored="false"/>
     <field name="site"                   type="string"         indexed="false" stored="true"/>
