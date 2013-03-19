@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  MLibrary solr schema 7.0.1
+  MLibrary solr schema 7.0.2
 
 Versioning: x.y.z
   x: match this to the major version of Drupal that we're using.
@@ -964,6 +964,12 @@ Fields:
 
   <fields>
     <field name="id"                     type="string"         indexed="true"  stored="true" /> 
+    <field name="apachesolr_id"          type="string"         indexed="true"  stored="true" /> 
+    <field name="entity_id"              type="string"         indexed="true"  stored="true" /> 
+    <field name="entity_type"            type="string"         indexed="true"  stored="true" /> 
+    <field name="bundle"                 type="string"         indexed="true"  stored="true" /> 
+    <field name="sm_parent_entity_bundle" type="string"        indexed="true"  stored="true" /> 
+    <field name="sm_parent_document_id"  type="string"         indexed="true"  stored="true" /> 
     <field name="og_groups"              type="tlong"          indexed="true"  stored="true" multiValued="true"/>
     <field name="og_groups_both"         type="string"         indexed="true"  stored="true" multiValued="true"/>
     <field name="tags"                   type="string"         indexed="true"  stored="true" multiValued="true"/>
