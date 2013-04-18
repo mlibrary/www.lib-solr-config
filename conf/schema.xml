@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  MLibrary solr schema 7.0.2
+  MLibrary solr schema 7.0.3
 
 Versioning: x.y.z
   x: match this to the major version of Drupal that we're using.
@@ -58,6 +58,12 @@ Fields:
     multivalued: yes
     used by:     ejournals,searchtools
     used for:    storing the url of a resource
+
+  all_titles:
+    type:        text
+    multivalued: yes
+    used by:     everything
+    used for:    searching titles and alt titles at the same time.
 
   all_titles_unstemmed:
     type:        text_unstemmed
@@ -689,7 +695,7 @@ Fields:
     that avoids logging every request
 -->
 
-<schema name="mlibrary-website-7.0.1" version="1.4">
+<schema name="mlibrary-website-7.0.3" version="1.4">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.4" is Solr's version number for the schema syntax and semantics.  It should
@@ -986,6 +992,8 @@ Fields:
     <field name="title_initial"          type="string_initial" indexed="true"  stored="false"/>
     <field name="title_initial_english"  type="string_initial_english" indexed="true"  stored="false"/>
     <field name="title_unstemmed"        type="text_unstemmed" indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
+    <field name="all_titles"             type="text"           indexed="true"  stored="true" 
+           termVectors="true"            omitNorms="true"      multiValued="true" />
     <field name="all_titles_unstemmed"   type="text_unstemmed" indexed="true"  stored="true" 
            termVectors="true"            omitNorms="true"      multiValued="true" />
     <field name="stitle"                 type="string_sort"    indexed="true"  stored="true"
@@ -1119,6 +1127,8 @@ Fields:
   <copyField source="title"      dest="title_initial"/>
   <copyField source="title"      dest="title_initial_english"/>
   <copyField source="title"      dest="title_unstemmed"/>
+  <copyField source="title"      dest="all_titles"/>
+  <copyField source="alt"        dest="all_titles"/>
   <copyField source="title"      dest="all_titles_unstemmed"/>
   <copyField source="alt"        dest="all_titles_unstemmed"/>
   <copyField source="sort_title" dest="sort_title_english"/>
