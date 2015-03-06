@@ -1149,7 +1149,7 @@ Fields:
     <field name="availability_start"     type="tdate"          indexed="true"  stored="true"/>
     <field name="availability_end"       type="tdate"          indexed="true"  stored="true"/>
     <field name="special_message"        type="text"           indexed="true"  stored="true" termVectors="true"/>
-    <field name="special_message_summary"type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="special_message_summary" type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="mobile"                 type="boolean"        indexed="true"  stored="true"/>
     <field name="mobile_url"             type="string_url"     indexed="true"  stored="true"/>
     <field name="icon"                   type="string"         indexed="true"  stored="true" multiValued="true"/>
