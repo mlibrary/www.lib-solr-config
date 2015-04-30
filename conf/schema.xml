@@ -113,6 +113,18 @@ Fields:
     used by:     hathitrust, libguides
     used for:    unstemmed text matches on the author's name.
 
+    availability_start:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Database available beginning on this date.
+
+  availability_end:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Database no longer available on this date.
+
   coauthor_initial:
     type:        string_initial
     multivalued: no
@@ -202,6 +214,12 @@ Fields:
     multivalued: no
     used by:     searchtools
     used for:    String for indicating who created the database. Sometimes who created the database record.
+
+  date_to_unpublish:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Unpublish the Database on this date.
 
   digest:
     type:        string
@@ -487,7 +505,31 @@ Fields:
     used by:     everything
     used for:    indicates the source or type of record we're looking at.
 
-  start_date:
+  special_message:
+    type:        text
+    multivalued: no
+    used by:     searchtools
+    used for:    a special message about databases to show users
+
+  special_message_start:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Display a special message beginning on this date.
+
+    special_message_summary:
+    type:        text
+    multivalued: no
+    used by:     searchtools
+    used for:    a summary of the special message about databases to show users
+
+  special_message_end:
+    type:        tdate
+    multivalued: no
+    used by:     searchtools
+    used for:    Display a special message until this date.
+
+    start_date:
     type:        tdate
     multivalued: no
     used by:     hathitrust
@@ -1107,6 +1149,13 @@ Fields:
     <field name="job_title"              type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
     <field name="new"                    type="boolean"        indexed="true"  stored="true"/>
     <field name="new_until"              type="tdate"          indexed="true"  stored="true"/>
+    <field name="date_to_unpublish"      type="tdate"          indexed="true"  stored="true"/>
+    <field name="special_message_start"  type="tdate"          indexed="true"  stored="true"/>
+    <field name="special_message_end"    type="tdate"          indexed="true"  stored="true"/>
+    <field name="availability_start"     type="tdate"          indexed="true"  stored="true"/>
+    <field name="availability_end"       type="tdate"          indexed="true"  stored="true"/>
+    <field name="special_message"        type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="special_message_summary" type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="mobile"                 type="boolean"        indexed="true"  stored="true"/>
     <field name="mobile_url"             type="string_url"     indexed="true"  stored="true"/>
     <field name="icon"                   type="string"         indexed="true"  stored="true" multiValued="true"/>
