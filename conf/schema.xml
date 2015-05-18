@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  MLibrary solr schema 7.1.1
+  MLibrary solr schema 7.1.2
 
 Versioning: x.y.z
   x: match this to the major version of Drupal that we're using.
@@ -1110,6 +1110,8 @@ Fields:
     <field name="sort_title_english"     type="string_sort_english" indexed="true"  stored="true"/>
     <field name="sort_english_title"     type="string_sort_english" indexed="true"  stored="true"/>
     <field name="tstamp"                 type="tlong"          indexed="false" stored="true"/>
+    <field name="duration"               type="tlong"          indexed="false" stored="true"/>
+    <field name="duration_string"        type="string"         indexed="false" stored="true"/>
     <field name="boost"                  type="tfloat"         indexed="false" stored="true"/>
     <field name="cache"                  type="string"         indexed="false" stored="true"/>
     <field name="content"                type="text"           indexed="true"  stored="true"/>
@@ -1164,6 +1166,7 @@ Fields:
     <field name="email"                  type="string"         indexed="true"  stored="true" multiValued="true"/>
     <field name="body"                   type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="teaser"                 type="text"           indexed="true"  stored="true" termVectors="true"/>
+    <field name="teaser_html"            type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="teaser_stripped"        type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="keywords"               type="text"           indexed="true"  stored="true" termVectors="true"/>
     <field name="type"                   type="string"         indexed="true"  stored="true"/>
