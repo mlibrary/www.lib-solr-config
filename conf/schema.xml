@@ -1092,7 +1092,7 @@ Fields:
     <field name="segment"                type="string"         indexed="true"  stored="true"/>
     <field name="digest"                 type="string"         indexed="false" stored="true"/>
     <field name="host"                   type="string_url"     indexed="true"  stored="false"/>
-    <field name="site"                   type="string"         indexed="false" stored="true"/>
+    <field name="site"                   type="string"         indexed="true"  stored="true"/>
     <field name="hash"                   type="string"         indexed="false" stored="true"/>
     <field name="title"                  type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
     <field name="title_initial"          type="string_initial" indexed="true"  stored="false"/>
