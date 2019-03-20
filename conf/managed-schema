@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  MLibrary solr schema 7.2.0
+  MLibrary solr schema 7.3.0
 
 Versioning: x.y.z
   x: match this to the major version of Drupal that we're using.
@@ -767,7 +767,7 @@ Fields:
     that avoids logging every request
 -->
 
-<schema name="mlibrary-website-7.1.1" version="1.4">
+<schema name="mlibrary-website-7.3.0" version="1.6">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.4" is Solr's version number for the schema syntax and semantics.  It should
@@ -779,7 +779,6 @@ Fields:
        1.4: default auto-phrase (QueryParser feature) to off
      -->
 
-  <types>
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
        attribute and any other attributes determine the real
@@ -788,11 +787,91 @@ Fields:
        org.apache.solr.analysis package.
     -->
 
+    <!-- Borrowed from Mirlyn/Vufind -->
+    <fieldType name="text_leftjustified" class="solr.TextField" positionIncrementGap="1000">
+      <analyzer>
+        <!-- <charFilter class="solr.ICUNormalizer2CharFilterFactory"/> -->
+        <!-- <charFilter class="solr.MappingCharFilterFactory" mapping=""schema/token_fixing_charfilter.txt"/> -->
+        <!-- Eliminate leading and trailing punctuation and add on a prefix -->
+        <charFilter class="solr.PatternReplaceCharFilterFactory"
+                    pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="aaaaa$1" />
+        <!-- <tokenizer class="solr.ICUTokenizerFactory"/> -->
+        <tokenizer  class="solr.StandardTokenizerFactory"/>
+        <!-- <filter class="solr.ICUFoldingFilterFactory"/> -->
+        <filter class="solr.CJKWidthFilterFactory"/>
+        <filter class="solr.CJKBigramFilterFactory"/>
+        <filter class="solr.DecimalDigitFilterFactory"/>
+        <filter class="solr.KeywordRepeatFilterFactory"/>
+        <filter class="solr.KStemFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="text_ngram" class="solr.TextField" positionIncrementGap="1000">
+      <analyzer type="index">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="40"/>
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- Borrowed from Mirlyn/Vufind -->
+    <fieldType name="squashed_prefix" class="solr.TextField" positionIncrementGap="1000">
+      <analyzer type="index">
+        <!-- <charFilter class="solr.ICUNormalizer2CharFilterFactory"/> -->
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <!-- <filter class="solr.ICUFoldingFilterFactory"/> -->
+        <filter class="solr.DecimalDigitFilterFactory"/>
+        <!-- Take out all non-alphanumeric except .-->
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="([^\p{Alnum}.])" replacement="" replace="all"
+                />
+        <!-- Take out all the dots except those surrounded by digits -->
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="(\p{Digit})\.(\p{Digit})" replacement="$1‡$2" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="\." replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="‡" replacement="." replace="all" />
+  
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="40"/>
+      </analyzer>
+      <!-- For query, don't do the edgengrams -->
+      <analyzer type="query">
+        <!-- <charFilter class="solr.ICUNormalizer2CharFilterFactory"/> -->
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <!-- <filter class="solr.ICUFoldingFilterFactory"/> -->
+        <filter class="solr.DecimalDigitFilterFactory"/>
+        <!-- Take out all non-alphanumeric except .-->
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="([^\p{Alnum}.])" replacement="" replace="all"
+                />
+        <!-- Take out all the dots except those surrounded by digits -->
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="(\p{Digit})\.(\p{Digit})" replacement="$1‡$2" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="\." replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory"
+                pattern="‡" replacement="." replace="all" />
+      </analyzer>
+    </fieldType>
+
+
     <!-- boolean type: "true" or "false" -->
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
 
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
 
     <fieldType name="string_sort" class="solr.TextField" sortMissingLast="true" omitNorms="true">
       <analyzer type="index">
@@ -857,7 +936,7 @@ Fields:
     </fieldType>
 
     <fieldType name="string_initial" class="solr.TextField" sortMissingLast="true" omitNorms="true">
-      <analyzer>
+      <analyzer type="index">
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
         <tokenizer  class="solr.KeywordTokenizerFactory" />
@@ -887,9 +966,16 @@ Fields:
         <!-- Spanish: El, La, Los, Las, Un, Una, Unos, Unas-->
         <filter class="solr.PatternReplaceFilterFactory" pattern="^([Ee][Ll]|[Ll][Aa]|[Ll][OoAa][Ss]|[Uu][Nn]|[Uu][Nn][OoAa]|[Uu][Nn][OoAa][Ss]) " replacement="" replace="all" />
         <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
-        <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" side="front"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Space}+" replacement="" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(.).*$" replacement="$1" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^$" replacement="Other" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[^A-Za-z0-9]" replacement="Other" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[0-9]" replacement="0-9" replace="all" />
+        <!-- <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" /> -->
       </analyzer>
+			<analyzer type="query">
+        <tokenizer  class="solr.KeywordTokenizerFactory" />
+			</analyzer>
     </fieldType>
 
     <fieldType name="string_initial_english" class="solr.TextField" sortMissingLast="true" omitNorms="true">
@@ -906,7 +992,10 @@ Fields:
         <filter class="solr.PatternReplaceFilterFactory" pattern="^([Aa][Nn]|[Tt][Hh][Ee]) " replacement="" replace="all" />
         <filter class="solr.PatternReplaceFilterFactory" pattern="(\p{Space}|\p{Punct})+$" replacement="" replace="all" />
         <filter class="solr.PatternReplaceFilterFactory" pattern="^(\p{Space}|\p{Punct})+" replacement="" replace="all" />
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" side="front"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^(.).*$" replacement="$1" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[^a-z0-9]" replacement="Other" replace="all" />
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^[0-9]" replacement="0-9" replace="all" />
+        <!-- <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="1" /> -->
       </analyzer>
     </fieldType>
 
@@ -992,11 +1081,11 @@ Fields:
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
         <tokenizer  class="solr.StandardTokenizerFactory"/>
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory"/>
         <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.PorterStemFilterFactory" />
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
       <analyzer type="query">
@@ -1005,11 +1094,11 @@ Fields:
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
         <tokenizer  class="solr.StandardTokenizerFactory" />
         <filter     class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory" />
         <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.PorterStemFilterFactory" />
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
@@ -1018,7 +1107,7 @@ Fields:
       <analyzer type="index">
         <charFilter class="solr.HTMLStripCharFilterFactory" />
         <tokenizer  class="solr.StandardTokenizerFactory"/>
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory"/>
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
@@ -1027,7 +1116,7 @@ Fields:
         <charFilter class="solr.HTMLStripCharFilterFactory" />
         <tokenizer  class="solr.StandardTokenizerFactory" />
         <filter     class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory" />
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
@@ -1042,11 +1131,11 @@ Fields:
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
         <tokenizer  class="solr.StandardTokenizerFactory"/>
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory"/>
         <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.PorterStemFilterFactory" />
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
@@ -1059,11 +1148,11 @@ Fields:
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt" />
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-FoldToASCII.txt" />
         <tokenizer  class="solr.StandardTokenizerFactory"/>
-        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter     class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
         <filter     class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter     class="solr.LowerCaseFilterFactory"/>
         <filter     class="solr.StemmerOverrideFilterFactory" dictionary="stemdict.txt" />
-        <filter     class="solr.PorterStemFilterFactory" protected="protwords.txt"/>
+        <filter     class="solr.PorterStemFilterFactory" />
         <filter     class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
@@ -1071,10 +1160,19 @@ Fields:
     <!-- since fields of this type are by default not stored or indexed,
          any data added to them will be ignored outright.  --> 
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
-  </types>
 
 
-  <fields>
+   <!-- If you remove this field, you must _also_ disable the update log in solrconfig.xml
+      or Solr won't start. _version_ and update log are required for SolrCloud
+   -->
+   <field name="_version_" type="long" indexed="true" stored="true"/>
+
+   <!-- points to the root document of a block of nested documents. Required for nested
+      document support, may be removed otherwise
+   -->
+   <field name="_root_" type="string" indexed="true" stored="false"/>
+
+
     <field name="id"                     type="string"         indexed="true"  stored="true" /> 
     <field name="apachesolr_id"          type="string"         indexed="true"  stored="true" /> 
     <field name="entity_id"              type="string"         indexed="true"  stored="true" /> 
@@ -1092,7 +1190,7 @@ Fields:
     <field name="segment"                type="string"         indexed="true"  stored="true"/>
     <field name="digest"                 type="string"         indexed="false" stored="true"/>
     <field name="host"                   type="string_url"     indexed="true"  stored="false"/>
-    <field name="site"                   type="string"         indexed="true"  stored="true"/>
+    <field name="site"                   type="string"         indexed="true" stored="true"/>
     <field name="hash"                   type="string"         indexed="false" stored="true"/>
     <field name="title"                  type="text"           indexed="true"  stored="true" termVectors="true" omitNorms="true"/>
     <field name="title_initial"          type="string_initial" indexed="true"  stored="false"/>
@@ -1115,7 +1213,7 @@ Fields:
     <field name="boost"                  type="tfloat"         indexed="false" stored="true"/>
     <field name="cache"                  type="string"         indexed="false" stored="true"/>
     <field name="content"                type="text"           indexed="true"  stored="true"/>
-    <field name="content_unstemmed"      type="text_unstemmed" indexed="true"  stored="true"/>
+    <field name="content_unstemmed"      type="text_unstemmed" indexed="true"  stored="true" multiValued="true"/>
     <field name="subject"                type="text"           indexed="true"  stored="true"/>
     <field name="holdings"               type="text"           indexed="true"  stored="true"/>
     <field name="author"                 type="text"           indexed="true"  stored="true"/>
@@ -1196,6 +1294,7 @@ Fields:
     <field name="ancestor_name"          type="string"         indexed="true"  stored="true" multiValued="true"/>
     <field name="ancestor_tid"           type="tlong"          indexed="true"  stored="true" multiValued="true"/>
     <field name="text"                   type="text"           indexed="true"  stored="false"/>
+    <field name="callnosearch"           type="squashed_prefix" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Here, default is used to create a "timestamp" field indicating
          When each document was indexed.
@@ -1219,6 +1318,9 @@ Fields:
     <dynamicField name="bsfield*"        type="boolean"        indexed="true"  stored="true" multiValued="false"/>
     <dynamicField name="psfield*"        type="tfloat"         indexed="true"  stored="true" multiValued="false"/>
     <dynamicField name="pmfield*"        type="tfloat"         indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="*_l"             type="text_l"         indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="*_lj"            type="text_leftjustified" indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="*_ngram"         type="text_ngram"     indexed="true"  stored="true" multiValued="true"/>
  
 
 
@@ -1227,10 +1329,6 @@ Fields:
          alternately, change the type="ignored" to some other type e.g. "text" if you want
          unknown fields indexed and/or stored by default -->
     <dynamicField name="*" type="ignored" multiValued="true"/>
-
-
-   
-  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
@@ -1250,6 +1348,11 @@ Fields:
   <copyField source="alt"        dest="all_titles"/>
   <copyField source="title"      dest="all_titles_unstemmed"/>
   <copyField source="alt"        dest="all_titles_unstemmed"/>
+  <copyField source="alt"        dest="title_l"/>
+  <copyField source="title"      dest="title_l"/>
+  <copyField source="alt"        dest="title_lj"/>
+  <copyField source="title"      dest="title_lj"/>
+  <copyField source="title"      dest="title_ngram"/>
   <copyField source="sort_title" dest="sort_title_english"/>
   <copyField source="sort_title" dest="sort_english_title"/>
   <copyField source="author"     dest="author_unstemmed"/>
@@ -1267,6 +1370,8 @@ Fields:
   <copyField source="publisher"  dest="pvc_text" />
   <copyField source="vendor"     dest="pvc_text" />
   <copyField source="creator"    dest="pvc_text" />
+  <copyField source="smfield_call_number" dest="callnosearch" />
+  <copyField source="smfield_call_number" dest="callnosearch_l" />
 
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
