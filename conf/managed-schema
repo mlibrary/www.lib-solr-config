@@ -1175,7 +1175,7 @@ Fields:
     <fieldType name="isbn" class="solr.TextField">
         <analyzer>
             <tokenizer class="solr.PatternTokenizerFactory" pattern="[;,]\s*" />
-            <!-- <filter class="edu.umich.lib.solr_filters.ISBNNormalizerFilterFactory"/> -->
+            <filter class="edu.umich.lib.solr_filters.ISBNNormalizerFilterFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
             <filter class="solr.LengthFilterFactory" min="13" max="13" />
     </analyzer>
@@ -1184,14 +1184,14 @@ Fields:
     <fieldType name="lccn" class="solr.TextField">
          <analyzer>
              <tokenizer class="solr.KeywordTokenizerFactory"/>
-             <!-- <filter class="edu.umich.lib.solr_filters.LCCNNormalizerFilterFactory"/> -->
+             <filter class="edu.umich.lib.solr_filters.LCCNNormalizerFilterFactory"/>
          </analyzer>
     </fieldType>
 
     <fieldType name="lc_callnumber_sortable" class="solr.TextField">
         <analyzer>
             <tokenizer class="solr.KeywordTokenizerFactory"/>
-            <!-- <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/> -->
+            <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/>
         </analyzer>
     </fieldType>
 
@@ -1199,12 +1199,12 @@ Fields:
     <fieldType name="lc_callnumber_searchable" class="solr.TextField"  docValues="false">
       <analyzer type="index">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <!-- <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/> -->
+        <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/>
           <filter class="solr.EdgeNGramFilterFactory" maxGramSize="40"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <!-- <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/> -->
+        <filter class="edu.umich.lib.solr_filters.LCCallNumberNormalizerFilterFactory"/>
       </analyzer>
     </fieldType>
 
